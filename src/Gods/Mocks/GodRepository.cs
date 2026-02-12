@@ -1,5 +1,6 @@
 using MythApi.Gods.Interfaces;
 using MythApi.Common.Database.Models;
+using MythApi.Common.Models;
 using MythApi.Gods.Models;
 
 namespace MythApi.Gods.Mocks;
@@ -38,6 +39,23 @@ public class GodRepository : IGodRepository
     public Task<IList<God>> GetAllGodsAsync()
     {
         return Task.FromResult(gods as IList<God>);
+    }
+
+    public Task<PagedResult<God>> GetAllGodsAsync(PaginationParameters pagination)
+    {
+        var totalCount = gods.Count;
+        var items = gods
+            .Skip(pagination.Skip)
+            .Take(pagination.PageSize)
+            .ToList();
+
+        return Task.FromResult(new PagedResult<God>
+        {
+            Items = items,
+            Page = pagination.Page,
+            PageSize = pagination.PageSize,
+            TotalCount = totalCount
+        });
     }
 
     public Task<God> GetGodAsync(GodParameter parameter)
