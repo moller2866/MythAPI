@@ -34,7 +34,7 @@ namespace UnitTests
             };
             _mockRepository.Setup(repo => repo.GetAllGodsAsync()).ReturnsAsync(gods);
 
-            var result = await MythApi.Endpoints.v1.Gods.GetAlllGods(_mockRepository.Object, null, null);
+            var result = await MythApi.Endpoints.v1.Gods.GetAllGods(_mockRepository.Object, null, null);
 
             Assert.That(result, Is.InstanceOf<Ok<IList<God>>>());
             var okResult = result as Ok<IList<God>>;
@@ -58,7 +58,7 @@ namespace UnitTests
             _mockRepository.Setup(repo => repo.GetAllGodsAsync(It.IsAny<PaginationParameters>()))
                 .ReturnsAsync(pagedResult);
 
-            var result = await MythApi.Endpoints.v1.Gods.GetAlllGods(_mockRepository.Object, 1, 1);
+            var result = await MythApi.Endpoints.v1.Gods.GetAllGods(_mockRepository.Object, 1, 1);
 
             Assert.That(result, Is.InstanceOf<Ok<PagedResult<God>>>());
             var okResult = result as Ok<PagedResult<God>>;

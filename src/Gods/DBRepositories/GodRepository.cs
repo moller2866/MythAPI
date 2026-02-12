@@ -45,11 +45,9 @@ public class GodRepository : IGodRepository
 
     public async Task<IList<God>> GetAllGodsAsync()
     {
-        var gods = await _context.Gods.ToListAsync();
-        foreach (var god in gods)
-        {
-            _context.Entry(god).Collection(x => x.Aliases).Load();
-        }
+        var gods = await _context.Gods
+            .Include(g => g.Aliases)
+            .ToListAsync();
         return gods;
     }
 
@@ -58,16 +56,11 @@ public class GodRepository : IGodRepository
         var totalCount = await _context.Gods.CountAsync();
         
         var gods = await _context.Gods
+            .Include(g => g.Aliases)
             .OrderBy(g => g.Id)
             .Skip(pagination.Skip)
             .Take(pagination.PageSize)
             .ToListAsync();
-
-        // Load aliases for each god
-        foreach (var god in gods)
-        {
-            _context.Entry(god).Collection(x => x.Aliases).Load();
-        }
 
         return new PagedResult<God>
         {
