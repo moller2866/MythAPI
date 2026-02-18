@@ -1,10 +1,13 @@
 using MythApi.Common.Database.Models;
+using MythApi.Common.Models;
 using MythApi.Gods.Models;
 
 namespace MythApi.Gods.Interfaces;
 
 public interface IGodRepository{
     public Task<IList<God>> GetAllGodsAsync();
+
+    public Task<PagedResult<God>> GetAllGodsAsync(PaginationParameters pagination);
 
     public Task<God> GetGodAsync(GodParameter parameter);
 

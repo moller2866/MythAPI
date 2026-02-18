@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MythApi.Gods.Interfaces;
 using MythApi.Common.Database.Models;
 using MythApi.Common.Database;
+using MythApi.Common.Models;
 using MythApi.Gods.Models;
 
 namespace MythApi.Gods.DBRepositories;
@@ -44,12 +45,30 @@ public class GodRepository : IGodRepository
 
     public async Task<IList<God>> GetAllGodsAsync()
     {
-        var gods = await _context.Gods.ToListAsync();
-        foreach (var god in gods)
-        {
-            _context.Entry(god).Collection(x => x.Aliases).Load();
-        }
+        var gods = await _context.Gods
+            .Include(g => g.Aliases)
+            .ToListAsync();
         return gods;
+    }
+
+    public async Task<PagedResult<God>> GetAllGodsAsync(PaginationParameters pagination)
+    {
+        var totalCount = await _context.Gods.CountAsync();
+        
+        var gods = await _context.Gods
+            .Include(g => g.Aliases)
+            .OrderBy(g => g.Id)
+            .Skip(pagination.Skip)
+            .Take(pagination.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<God>
+        {
+            Items = gods,
+            Page = pagination.Page,
+            PageSize = pagination.PageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<God> GetGodAsync(GodParameter parameter)

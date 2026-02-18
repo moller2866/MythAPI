@@ -488,6 +488,21 @@ app.UseSwaggerUI();
 app.Run();
 ```
 
+# Features
+
+## Pagination Support
+
+All list-returning endpoints now support optional pagination to improve performance and usability. See [PAGINATION.md](PAGINATION.md) for detailed documentation.
+
+### Quick Example
+```bash
+# Get first page with 10 items
+GET /api/v1/gods?page=1&pageSize=10
+
+# Get all items (backward compatible)
+GET /api/v1/gods
+```
+
 # Future work
 
 - Improve Bicep scripts
