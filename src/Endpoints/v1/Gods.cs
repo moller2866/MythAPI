@@ -38,8 +38,8 @@ public static class Gods {
         if (errors.Count > 0)
             return Results.ValidationProblem(errors);
 
-        var gods_result = await repository.AddOrUpdateGods(gods);
-        return Results.Ok(gods_result);
+        var godsResult = await repository.AddOrUpdateGods(gods);
+        return Results.Ok(godsResult);
     }
 
     public static Task<IList<God>> GetAlllGods(IGodRepository repository) => repository.GetAllGodsAsync();
