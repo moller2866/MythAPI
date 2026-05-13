@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Json;
 using MythApi.Common.Database.Models;
+using MythApi.Gods.Models;
 
 namespace IntegrationTests;
 
@@ -70,5 +72,69 @@ public class GodsEndpointTests
         Assert.That(successfulRequests, Is.LessThanOrEqualTo(100), "Should not exceed rate limit");
         // Assert.That(rateLimitedRequests, Is.GreaterThan(0), "Some requests should be rate limited");
         Assert.That(successfulRequests + rateLimitedRequests, Is.EqualTo(numberOfRequests), "All requests should be either successful or rate limited");
+    }
+
+    [Test]
+    public async Task AddOrUpdateGods_ValidGod_ShouldReturnOk()
+    {
+        // Arrange
+        var godInputs = new List<GodInput>
+        {
+            new GodInput { Name = "Hermes", MythologyId = 2, Description = "God of travel and commerce." }
+        };
+
+        // Act
+        var response = await _httpClient.PostAsJsonAsync("/api/v1/gods", godInputs);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+    }
+
+    [Test]
+    public async Task AddOrUpdateGods_EmptyName_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var godInputs = new List<GodInput>
+        {
+            new GodInput { Name = "", MythologyId = 1, Description = "Some description." }
+        };
+
+        // Act
+        var response = await _httpClient.PostAsJsonAsync("/api/v1/gods", godInputs);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+    }
+
+    [Test]
+    public async Task AddOrUpdateGods_NameWithNumbers_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var godInputs = new List<GodInput>
+        {
+            new GodInput { Name = "Zeus123", MythologyId = 1, Description = "Invalid name." }
+        };
+
+        // Act
+        var response = await _httpClient.PostAsJsonAsync("/api/v1/gods", godInputs);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+    }
+
+    [Test]
+    public async Task AddOrUpdateGods_NameTooLong_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var godInputs = new List<GodInput>
+        {
+            new GodInput { Name = new string('A', 101), MythologyId = 1, Description = "Too long name." }
+        };
+
+        // Act
+        var response = await _httpClient.PostAsJsonAsync("/api/v1/gods", godInputs);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 }

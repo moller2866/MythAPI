@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using MythApi.Gods.Interfaces;
 using MythApi.Common.Database.Models;
@@ -16,7 +17,30 @@ public static class Gods {
         gods.MapPost("", AddOrUpdateGods);
     }
 
-    public static Task<List<God>> AddOrUpdateGods(List<GodInput> gods, IGodRepository repository) => repository.AddOrUpdateGods(gods);
+    public static async Task<IResult> AddOrUpdateGods(List<GodInput> gods, IGodRepository repository)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        for (var i = 0; i < gods.Count; i++)
+        {
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(gods[i]);
+            if (!Validator.TryValidateObject(gods[i], context, validationResults, validateAllProperties: true))
+            {
+                foreach (var result in validationResults)
+                {
+                    var key = $"[{i}].{result.MemberNames.FirstOrDefault() ?? "Unknown"}";
+                    errors[key] = [result.ErrorMessage ?? "Invalid value."];
+                }
+            }
+        }
+
+        if (errors.Count > 0)
+            return Results.ValidationProblem(errors);
+
+        var gods_result = await repository.AddOrUpdateGods(gods);
+        return Results.Ok(gods_result);
+    }
 
     public static Task<IList<God>> GetAlllGods(IGodRepository repository) => repository.GetAllGodsAsync();
 }
